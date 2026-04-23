@@ -5,6 +5,6 @@ import mkcert from "vite-plugin-mkcert";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), mkcert()],
-  base: "/jadaex-balance-widget/",
+  base: "/",
   server: { https: true }, // Not needed for Vite 5+
 });
