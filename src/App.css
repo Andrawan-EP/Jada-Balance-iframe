@@ -3,8 +3,14 @@
   margin: 0 auto;
   padding: 16px;
   text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .font-color-secondary {
   color: rgba(0, 0, 0, 0.45);
 }
+

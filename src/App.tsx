@@ -3,6 +3,7 @@ import { dummyData } from "./dummyData.tsx";
 import JadaLogo from "/JadaLogo.svg";
 
 import { Flex, Table } from "antd";
+import { useEffect, useRef, useState } from "react";
 import { TokenIcon } from "./utils/tokenIconMapper.tsx";
 
 const columns = [
@@ -44,12 +45,32 @@ function App() {
     ? account.balances.map((balance) => ({ ...balance, key: balance.assetId }))
     : [];
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const [tableScrollY, setTableScrollY] = useState<number>(400);
+
+  useEffect(() => {
+    const updateScrollY = () => {
+      if (!containerRef.current || !headerRef.current) return;
+      const containerHeight = containerRef.current.clientHeight;
+      const headerHeight = headerRef.current.clientHeight;
+      // 16px margin-bottom on header + 39px table thead height
+      setTableScrollY(containerHeight - headerHeight - 16 - 39);
+    };
+
+    updateScrollY();
+    const observer = new ResizeObserver(updateScrollY);
+    if (containerRef.current) observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <>
+    <Flex vertical ref={containerRef} style={{ height: "100%", overflow: "hidden" }}>
       <Flex
+        ref={headerRef}
         justify="space-between"
         align="center"
-        style={{ marginBottom: "16px" }}
+        style={{ marginBottom: "16px", flexShrink: 0 }}
       >
         <div style={{ fontSize: "16", fontWeight: "600" }}>
           {accountName}
@@ -61,11 +82,18 @@ function App() {
           border: "1px solid #f0f0f0",
           borderRadius: "8px",
           overflow: "hidden",
+          flex: 1,
+          minHeight: 0,
         }}
       >
-        <Table columns={columns} dataSource={balanceDatta} pagination={false} />
+        <Table
+          columns={columns}
+          dataSource={balanceDatta}
+          pagination={false}
+          scroll={{ y: tableScrollY }}
+        />
       </div>
-    </>
+    </Flex>
   );
 }
 
