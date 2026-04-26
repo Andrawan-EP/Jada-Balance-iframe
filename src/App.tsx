@@ -1,10 +1,14 @@
 import "./App.css";
 import { dummyData } from "./dummyData.tsx";
+import { assetPrice } from "./assetPrice.tsx";
 import JadaLogo from "/JadaLogo.svg";
 
 import { Flex, Table } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { TokenIcon } from "./utils/tokenIconMapper.tsx";
+
+const getPriceForSymbol = (symbol: string) =>
+  assetPrice.find((p) => p.assetSymbol === symbol)?.price ?? 0;
 
 const columns = [
   {
@@ -25,13 +29,41 @@ const columns = [
   },
   {
     title: "Total Balance",
-    dataIndex: "totalBalance",
     key: "totalBalance",
+    render: (
+      _text: string,
+      record: { assetSymbol: string; totalBalance: number },
+    ) => {
+      const usdValue =
+        record.totalBalance * getPriceForSymbol(record.assetSymbol);
+      return (
+        <div>
+          <div>{record.totalBalance}</div>
+          <div className="font-color-secondary">
+            {usdValue.toLocaleString()} USD
+          </div>
+        </div>
+      );
+    },
   },
   {
     title: "Available Balance",
-    dataIndex: "availableBalance",
     key: "availableBalance",
+    render: (
+      _text: string,
+      record: { assetSymbol: string; availableBalance: number },
+    ) => {
+      const usdValue =
+        record.availableBalance * getPriceForSymbol(record.assetSymbol);
+      return (
+        <div>
+          <div>{record.availableBalance}</div>
+          <div className="font-color-secondary">
+            {usdValue.toLocaleString()} USD
+          </div>
+        </div>
+      );
+    },
   },
 ];
 
@@ -54,7 +86,6 @@ function App() {
       if (!containerRef.current || !headerRef.current) return;
       const containerHeight = containerRef.current.clientHeight;
       const headerHeight = headerRef.current.clientHeight;
-      // 16px margin-bottom on header + 39px table thead height
       setTableScrollY(containerHeight - headerHeight - 16 - 39);
     };
 
@@ -65,16 +96,18 @@ function App() {
   }, []);
 
   return (
-    <Flex vertical ref={containerRef} style={{ height: "100%", overflow: "hidden" }}>
+    <Flex
+      vertical
+      ref={containerRef}
+      style={{ height: "100%", overflow: "hidden" }}
+    >
       <Flex
         ref={headerRef}
         justify="space-between"
         align="center"
         style={{ marginBottom: "16px", flexShrink: 0 }}
       >
-        <div style={{ fontSize: "16", fontWeight: "600" }}>
-          {accountName}
-        </div>
+        <div style={{ fontSize: "16", fontWeight: "600" }}>{accountName}</div>
         <img src={JadaLogo} alt="Jada" style={{ height: "35px" }} />
       </Flex>
       <div
